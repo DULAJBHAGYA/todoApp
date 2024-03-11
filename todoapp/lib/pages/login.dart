@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todoapp/color.dart'; // Assuming your colors are defined here
+import 'package:google_fonts/google_fonts.dart';
+import 'package:todoapp/color.dart';
+import 'package:todoapp/pages/register.dart'; 
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -20,16 +22,20 @@ class Login extends StatelessWidget {
                 ],
               ),
             ),
+
             child: Padding(
-              padding: const EdgeInsets.only(top: 40.0, left: 22),
-              child: Text(
-                'Hello\nSign in!',
-                style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.only(top: 40.0, left: 22),
+            child: Text(
+              'Hello\nSign in!',
+              style: GoogleFonts.openSans(
+                fontSize: 30,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+
+
           ),
           Padding(
             padding: const EdgeInsets.only(top: 200),
@@ -48,6 +54,10 @@ class Login extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      height: 28,
+                    ),
+
                     TextField(
                       decoration: InputDecoration(
                           suffixIcon: Icon(
@@ -56,12 +66,17 @@ class Login extends StatelessWidget {
                           ),
                           label: Text(
                             'E Mail',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               fontWeight: FontWeight.bold,
                               color: violet,
                             ),
                           )),
                     ),
+
+                    SizedBox(
+                      height: 28,
+                    ),
+                    
                     TextField(
                       decoration: InputDecoration(
                         suffixIcon: Icon(
@@ -70,7 +85,7 @@ class Login extends StatelessWidget {
                         ),
                         label: Text(
                           'Password',
-                          style: TextStyle(
+                          style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
@@ -84,7 +99,7 @@ class Login extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: Text(
                         'Forgot password?',
-                        style: TextStyle(
+                        style: GoogleFonts.openSans(
                           fontWeight: FontWeight.bold,
                           color: violet,
                           fontSize: 17,
@@ -102,7 +117,7 @@ class Login extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'SIGN IN',
-                            style: TextStyle(
+                            style: GoogleFonts.openSans(
                               color: white,
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -120,20 +135,28 @@ class Login extends StatelessWidget {
                           children: [
                             Text(
                               "Don't have an Account",
-                              style: TextStyle(
+                              style: GoogleFonts.openSans(
                                 fontSize: 20,
                                 fontWeight: FontWeight.normal,
                                 color: violet,
                               ),
                             ),
-                            Text(
+                            GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Register()),
+                              );
+                            },
+                            child: Text(
                               "Sign up",
-                              style: TextStyle(
+                              style: GoogleFonts.openSans(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: violet,
                               ),
                             ),
+                          ),
                           ],
                         ))
                   ],

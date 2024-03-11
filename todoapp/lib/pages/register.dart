@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todoapp/color.dart'; // Assuming your colors are defined here
+import 'package:google_fonts/google_fonts.dart';
+import 'package:todoapp/color.dart'; 
+import 'login.dart';
 
 class Register extends StatelessWidget {
   const Register({Key? key}) : super(key: key);
@@ -16,6 +18,7 @@ class Register extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   lightPurple,
+                  violet,
                   blue,
                 ],
               ),
@@ -23,11 +26,12 @@ class Register extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 40.0, left: 22),
               child: Text(
-                'Hello!\nSign up',
-                style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                'Hello\nSign in!',
+                style: GoogleFonts.openSans(
+                  fontSize: 30,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -51,20 +55,25 @@ class Register extends StatelessWidget {
 
                     TextField(
                       decoration: InputDecoration(
-                          label: Text(
-                            'Name',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: violet,
-                            ),
-                          )),
+                        label: Text(
+                          'Name',
+                          style: GoogleFonts.openSans(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: 15,
                     ),
 
                     TextField(
                       decoration: InputDecoration(
                         label: Text(
                           'E Mail',
-                          style: TextStyle(
+                          style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
@@ -72,16 +81,24 @@ class Register extends StatelessWidget {
                       ),
                     ),
 
+                    SizedBox(
+                      height: 15,
+                    ),
+
                     TextField(
                       decoration: InputDecoration(
                         label: Text(
                           'User Name',
-                          style: TextStyle(
+                          style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
                       ),
+                    ),
+
+                    SizedBox(
+                      height: 15,
                     ),
 
                     TextField(
@@ -92,12 +109,16 @@ class Register extends StatelessWidget {
                         ),
                         label: Text(
                           'Password',
-                          style: TextStyle(
+                          style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
                       ),
+                    ),
+
+                    SizedBox(
+                      height: 15,
                     ),
 
                     TextField(
@@ -108,63 +129,71 @@ class Register extends StatelessWidget {
                         ),
                         label: Text(
                           'Confirm Password',
-                          style: TextStyle(
+                          style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
                       ),
                     ),
-
                     SizedBox(
-                      height: 28,
+                      height: 15,
                     ),
-                    
                     SizedBox(height: 70),
                     Container(
-                        height: 50,
-                        width: 300,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: violet,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'SIGN UP',
-                            style: TextStyle(
-                              color: white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
+                      height: 50,
+                      width: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: violet,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'SIGN UP',
+                          style: GoogleFonts.openSans(
+                            color: white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       height: 50,
                     ),
                     Align(
-                        alignment: Alignment.bottomRight,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Already have an Account",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.normal,
-                                color: violet,
-                              ),
+                      alignment: Alignment.bottomRight,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Already have an Account",
+                            style: GoogleFonts.openSans(
+                              fontSize: 20,
+                              fontWeight: FontWeight.normal,
+                              color: violet,
                             ),
-                            Text(
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Login()),
+                              );
+                            },
+                            child: Text(
                               "Sign in",
-                              style: TextStyle(
+                              style: GoogleFonts.openSans(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: violet,
                               ),
                             ),
-                          ],
-                        ))
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
