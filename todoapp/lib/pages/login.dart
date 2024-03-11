@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
-import 'package:todoapp/pages/register.dart'; 
+import 'package:todoapp/pages/Home.dart';
+import 'package:todoapp/pages/register.dart';
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
@@ -17,25 +18,23 @@ class Login extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  lightPurple,
                   blue,
+                  violet,
+                  lightPurple,
                 ],
               ),
             ),
-
             child: Padding(
-            padding: const EdgeInsets.only(top: 40.0, left: 22),
-            child: Text(
-              'Hello\nSign in!',
-              style: GoogleFonts.openSans(
-                fontSize: 30,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+              padding: const EdgeInsets.only(top: 40.0, left: 22),
+              child: Text(
+                'Hello\nSign in!',
+                style: GoogleFonts.openSans(
+                  fontSize: 30,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-
-
           ),
           Padding(
             padding: const EdgeInsets.only(top: 200),
@@ -57,7 +56,6 @@ class Login extends StatelessWidget {
                     SizedBox(
                       height: 28,
                     ),
-
                     TextField(
                       decoration: InputDecoration(
                           suffixIcon: Icon(
@@ -72,11 +70,9 @@ class Login extends StatelessWidget {
                             ),
                           )),
                     ),
-
                     SizedBox(
                       height: 28,
                     ),
-                    
                     TextField(
                       decoration: InputDecoration(
                         suffixIcon: Icon(
@@ -107,7 +103,14 @@ class Login extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 70),
-                    Container(
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Home()), // Navigate to Home screen
+                        );
+                      },
+                      child: Container(
                         height: 50,
                         width: 300,
                         decoration: BoxDecoration(
@@ -123,29 +126,32 @@ class Login extends StatelessWidget {
                               fontSize: 20,
                             ),
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       height: 50,
                     ),
                     Align(
-                        alignment: Alignment.bottomRight,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Don't have an Account",
-                              style: GoogleFonts.openSans(
-                                fontSize: 20,
-                                fontWeight: FontWeight.normal,
-                                color: violet,
-                              ),
+                      alignment: Alignment.bottomRight,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Don't have an Account",
+                            style: GoogleFonts.openSans(
+                              fontSize: 20,
+                              fontWeight: FontWeight.normal,
+                              color: violet,
                             ),
-                            GestureDetector(
+                          ),
+                          GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => Register()),
+                                MaterialPageRoute(
+                                    builder: (context) => Register()),
                               );
                             },
                             child: Text(
@@ -157,8 +163,9 @@ class Login extends StatelessWidget {
                               ),
                             ),
                           ),
-                          ],
-                        ))
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),

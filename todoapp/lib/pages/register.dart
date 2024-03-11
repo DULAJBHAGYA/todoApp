@@ -17,16 +17,16 @@ class Register extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  lightPurple,
-                  violet,
                   blue,
+                  violet,
+                  lightPurple,
                 ],
               ),
             ),
             child: Padding(
               padding: const EdgeInsets.only(top: 40.0, left: 22),
               child: Text(
-                'Hello\nSign in!',
+                'Hello!\nSign up',
                 style: GoogleFonts.openSans(
                   fontSize: 30,
                   color: Colors.white,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:todoapp/pages/ChooseAction.dart';
 import 'package:todoapp/pages/Home.dart';
 import 'package:todoapp/pages/Welcome.dart';
 import 'package:todoapp/pages/login.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Navigation',
       initialRoute: '/',
       routes: {
-        '/': (context) => Home(),
+        '/': (context) => ChooseAction(),
         // '/menu': (context) => Menu(),
         // '/calender': (context) => CalendarApp(),
       },
