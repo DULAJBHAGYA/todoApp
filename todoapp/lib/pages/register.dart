@@ -170,7 +170,7 @@ class Register extends StatelessWidget {
                           Text(
                             "Already have an Account",
                             style: GoogleFonts.openSans(
-                              fontSize: 20,
+                              fontSize: 17,
                               fontWeight: FontWeight.normal,
                               color: violet,
                             ),
@@ -185,7 +185,7 @@ class Register extends StatelessWidget {
                             child: Text(
                               "Sign in",
                               style: GoogleFonts.openSans(
-                                fontSize: 20,
+                                fontSize: 17,
                                 fontWeight: FontWeight.bold,
                                 color: violet,
                               ),

@@ -141,7 +141,7 @@ class Login extends StatelessWidget {
                           Text(
                             "Don't have an Account",
                             style: GoogleFonts.openSans(
-                              fontSize: 20,
+                              fontSize: 17,
                               fontWeight: FontWeight.normal,
                               color: violet,
                             ),
@@ -157,7 +157,7 @@ class Login extends StatelessWidget {
                             child: Text(
                               "Sign up",
                               style: GoogleFonts.openSans(
-                                fontSize: 20,
+                                fontSize: 17,
                                 fontWeight: FontWeight.bold,
                                 color: violet,
                               ),

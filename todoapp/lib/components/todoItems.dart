@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todoapp/color.dart';
+import 'package:todoapp/components/editModal.dart';
 
 class ToDoItems extends StatefulWidget {
   const ToDoItems({Key? key}) : super(key: key);
@@ -54,25 +55,31 @@ class _ToDoItemsState extends State<ToDoItems> {
                 color: Colors.white,
                 iconSize: 18,
                 icon: Icon(Icons.edit),
-                onPressed: () {},
-              ),
-            ),
-            Container(
-              height: 35,
-              width: 35,
-              decoration: BoxDecoration(
-                color: violet,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: IconButton(
-                color: Colors.white,
-                iconSize: 18,
-                icon: Icon(Icons.delete),
                 onPressed: () {
-                  print('Clicked on delete icon');
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EditPopupCard()), // Navigate to Home screen
+                        );
                 },
               ),
             ),
+
+            // Container(
+            //   height: 35,
+            //   width: 35,
+            //   decoration: BoxDecoration(
+            //     color: violet,
+            //     borderRadius: BorderRadius.circular(5),
+            //   ),
+            //   child: IconButton(
+            //     color: Colors.white,
+            //     iconSize: 18,
+            //     icon: Icon(Icons.delete),
+            //     onPressed: () {
+            //       print('Clicked on delete icon');
+            //     },
+            //   ),
+            // ),
           ],
         ),
       ),

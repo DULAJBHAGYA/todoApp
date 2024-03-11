@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
-import 'package:todoapp/components/datePicker.dart';
-import 'package:todoapp/components/timePicker.dart';
 import 'package:todoapp/pages/Home.dart';
 
-class PopupCard extends StatelessWidget {
+class EditPopupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController _titleController = TextEditingController();
 
-    // Adjust these values according to your needs
     const double cardWidth = 300.0;
-    const double cardHeight = 300.0;
+    const double cardHeight = 200.0;
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       showDialog(
@@ -20,7 +17,7 @@ class PopupCard extends StatelessWidget {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              'Add Task',
+              'Edit Task',
               style: GoogleFonts.openSans(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -44,16 +41,8 @@ class PopupCard extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 20.0),
-
-                  DatePickerWidget(),
-
-                  SizedBox(height: 20.0),
-
-                  TimePicker(),
+                  SizedBox(height: 50,),
                   
-                  SizedBox(height: 20,),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -69,15 +58,14 @@ class PopupCard extends StatelessWidget {
                           String title = _titleController.text;
                           Navigator.of(context).pop();
                         },
-                        child: Text('Add',
-                        style: GoogleFonts.openSans(
+                        child: Text(
+                          'Add',
+                          style: GoogleFonts.openSans(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold),
                         ),
-                        ),
-                      
-
+                      ),
                       TextButton(
                         style: TextButton.styleFrom(
                           backgroundColor: violet,
@@ -88,9 +76,9 @@ class PopupCard extends StatelessWidget {
                         ),
                         onPressed: () {
                           Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Home()), 
-                        );
+                            context,
+                            MaterialPageRoute(builder: (context) => Home()),
+                          );
                         },
                         child: Text(
                           'Cancel',
@@ -120,7 +108,7 @@ void main() {
       appBar: AppBar(
         title: Text('Popup Example'),
       ),
-      body: PopupCard(),
+      body: EditPopupCard(),
     ),
   ));
 }

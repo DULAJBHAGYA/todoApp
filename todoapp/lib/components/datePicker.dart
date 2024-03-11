@@ -18,8 +18,20 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
         children: <Widget>[
           Text(
             "${selectedDate.year} - ${selectedDate.month} - ${selectedDate.day}",
+            style: GoogleFonts.openSans(
+              fontSize:15,
+              color:Colors.black,
+            ),
           ),
+
           ElevatedButton(
+             style: ElevatedButton.styleFrom(
+              backgroundColor: violet,
+              minimumSize: Size(400, 50), 
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+             ),
             onPressed: () async {
               final DateTime? pickedDate = await showDatePicker(
                 context: context,
@@ -33,12 +45,12 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
                 });
               }
             },
-            child: Text('Choose date',
-            style: GoogleFonts.openSans(
-              fontSize: 20,
-              fontWeight: FontWeight.normal,
-              color: Colors.grey
-            ),
+            child: Text(
+              'Choose date',
+              style: GoogleFonts.openSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white),
             ),
           )
         ],

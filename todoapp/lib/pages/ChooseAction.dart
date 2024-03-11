@@ -56,7 +56,7 @@ class ChooseAction extends StatelessWidget {
                     'SIGN IN',
                     style: GoogleFonts.openSans(
                       color: Colors.white,
-                      fontSize: 30,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold
                       ),
                   ),
@@ -87,7 +87,7 @@ class ChooseAction extends StatelessWidget {
                     'SIGN UP',
                     style: GoogleFonts.openSans(
                       color: Colors.white,
-                      fontSize: 30,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold
                       ),
                   ),
