@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:todoapp/pages/Welcome.dart';
 import 'package:todoapp/pages/login.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:todoapp/pages/register.dart';
 
 
 void main() {
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Navigation',
       initialRoute: '/',
       routes: {
-        '/': (context) => Login(),
+        '/': (context) => Register(),
         // '/menu': (context) => Menu(),
         // '/calender': (context) => CalendarApp(),
       },

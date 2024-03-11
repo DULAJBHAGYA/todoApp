@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todoapp/color.dart'; // Assuming your colors are defined here
 
-class Login extends StatelessWidget {
-  const Login({Key? key}) : super(key: key);
+class Register extends StatelessWidget {
+  const Register({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class Login extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 40.0, left: 22),
               child: Text(
-                'Hello\nSign in!',
+                'Hello!\nSign up',
                 style: TextStyle(
                     fontSize: 30,
                     color: Colors.white,
@@ -48,20 +48,42 @@ class Login extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
                     TextField(
                       decoration: InputDecoration(
-                          suffixIcon: Icon(
-                            Icons.check,
-                            color: Colors.grey,
-                          ),
                           label: Text(
-                            'E Mail',
+                            'Name',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: violet,
                             ),
                           )),
                     ),
+
+                    TextField(
+                      decoration: InputDecoration(
+                        label: Text(
+                          'E Mail',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    TextField(
+                      decoration: InputDecoration(
+                        label: Text(
+                          'User Name',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
+                        ),
+                      ),
+                    ),
+
                     TextField(
                       decoration: InputDecoration(
                         suffixIcon: Icon(
@@ -77,20 +99,27 @@ class Login extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 28,
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Forgot password?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: violet,
-                          fontSize: 17,
+
+                    TextField(
+                      decoration: InputDecoration(
+                        suffixIcon: Icon(
+                          Icons.visibility_off,
+                          color: Colors.grey,
+                        ),
+                        label: Text(
+                          'Confirm Password',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
                         ),
                       ),
                     ),
+
+                    SizedBox(
+                      height: 28,
+                    ),
+                    
                     SizedBox(height: 70),
                     Container(
                         height: 50,
@@ -101,7 +130,7 @@ class Login extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            'SIGN IN',
+                            'SIGN UP',
                             style: TextStyle(
                               color: white,
                               fontWeight: FontWeight.bold,
@@ -119,7 +148,7 @@ class Login extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              "Don't have an Account",
+                              "Already have an Account",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.normal,
@@ -127,7 +156,7 @@ class Login extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "Sign up",
+                              "Sign in",
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
