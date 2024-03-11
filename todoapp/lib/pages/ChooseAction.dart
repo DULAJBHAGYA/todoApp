@@ -53,7 +53,7 @@ class ChooseAction extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Sign in',
+                    'SIGN IN',
                     style: GoogleFonts.openSans(
                       color: Colors.white,
                       fontSize: 30,
@@ -84,7 +84,7 @@ class ChooseAction extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Sign up',
+                    'SIGN UP',
                     style: GoogleFonts.openSans(
                       color: Colors.white,
                       fontSize: 30,

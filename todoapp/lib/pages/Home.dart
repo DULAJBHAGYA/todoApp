@@ -13,55 +13,8 @@ class Home extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: violet,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20, left: 10),
-              child: Text(
-                'Hi!\nDulaj Bhagya',
-                style: GoogleFonts.openSans(
-                  fontSize: 30,
-                  color: white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            top: 120,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                color: Colors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Align to the left
-                  children: [
-                    SizedBox(height: 20),
-                    Text(
-                      'All to dos', 
-                      style: GoogleFonts.openSans(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    ToDoItems(),
-                    BottomNav()
-                  ],
-                ),
-              ),
-            ),
-          ),
+          
+          const BottomNav(),
         ],
       ),
     );
