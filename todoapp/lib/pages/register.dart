@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:todoapp/color.dart';
+
 import 'login.dart';
 
 class Register extends StatefulWidget {
@@ -14,19 +19,48 @@ class _RegisterState extends State<Register> {
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
 
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
+  bool _isButtonDisabled = false;
+
   @override
   void dispose() {
+    _nameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
+
+ Future<void> _saveUserData() async {
+  if (_formKey.currentState!.validate()) {
+    final jsonData = {
+      'name': _nameController.text,
+      'username': _usernameController.text,
+      'email': _emailController.text,
+      'password': _passwordController.text,
+    };
+
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      print('Directory Path: ${directory.path}'); // Print directory path for debugging
+      final file = File('${directory.path}/user.json');
+      await file.writeAsString(jsonEncode(jsonData));
+      print('User data saved successfully');
+    } catch (e) {
+      print('Error saving user data: $e');
+    }
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,41 +110,54 @@ class _RegisterState extends State<Register> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      
-                    TextField(
-                      decoration: InputDecoration(
-                        label: Text(
-                          'Name',
-                          style: GoogleFonts.openSans(
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          labelStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-
-                    SizedBox(
-                      height: 15,
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        label: Text(
-                          'User Name',
-                          style: GoogleFonts.openSans(
+                      SizedBox(
+                        height: 15,
+                      ),
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          labelText: 'User Name',
+                          labelStyle: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your username';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-
-                    SizedBox(
-                      height: 15,
-                    ),
-
+                      SizedBox(
+                        height: 15,
+                      ),
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -120,15 +167,6 @@ class _RegisterState extends State<Register> {
                           }
                           return null;
                         },
-                        decoration: InputDecoration(
-                          label: Text(
-                            'E Mail',
-                            style: GoogleFonts.openSans(
-                              fontWeight: FontWeight.bold,
-                              color: violet,
-                            ),
-                          ),
-                        ),
                       ),
                       SizedBox(
                         height: 15,
@@ -136,6 +174,24 @@ class _RegisterState extends State<Register> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: !_passwordVisible,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
@@ -158,26 +214,6 @@ class _RegisterState extends State<Register> {
                           }
                           return null;
                         },
-                        decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _passwordVisible ? Icons.visibility : Icons.visibility_off,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _passwordVisible = !_passwordVisible;
-                              });
-                            },
-                          ),
-                          label: Text(
-                            'Password',
-                            style: GoogleFonts.openSans(
-                              fontWeight: FontWeight.bold,
-                              color: violet,
-                            ),
-                          ),
-                        ),
                       ),
                       SizedBox(
                         height: 15,
@@ -185,16 +221,12 @@ class _RegisterState extends State<Register> {
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: !_confirmPasswordVisible,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
                         decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -206,36 +238,47 @@ class _RegisterState extends State<Register> {
                               });
                             },
                           ),
-                          label: Text(
-                            'Confirm Password',
-                            style: GoogleFonts.openSans(
-                              fontWeight: FontWeight.bold,
-                              color: violet,
-                            ),
-                          ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(
                         height: 15,
                       ),
                       SizedBox(height: 30),
                       GestureDetector(
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
+                        onTap: () async {
+                          if (!_formKey.currentState!.validate() || _isButtonDisabled) {
+                            return;
                           }
+                          setState(() {
+                            _isButtonDisabled = true;
+                          });
+                          await _saveUserData();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Login()),
+                          );
                         },
                         child: Container(
                           height: 50,
                           width: 300,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            color: violet,
+                            color:violet,
                           ),
                           child: Center(
                             child: Text(
                               'SIGN UP',
-                              style: GoogleFonts.openSans(
-                                color: white,
+                              style: GoogleFonts.openSans                              (
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
@@ -257,7 +300,7 @@ class _RegisterState extends State<Register> {
                               style: GoogleFonts.openSans(
                                 fontSize: 17,
                                 fontWeight: FontWeight.normal,
-                                color: violet,
+                                color:violet,
                               ),
                             ),
                             GestureDetector(
@@ -290,3 +333,4 @@ class _RegisterState extends State<Register> {
     );
   }
 }
+
