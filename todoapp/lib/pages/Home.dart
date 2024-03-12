@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/components/bottomNavigation.dart';
 import 'package:todoapp/components/deleteModal.dart';
+import 'package:todoapp/components/logoutModal.dart';
 import 'package:todoapp/components/todoItems.dart';
+import 'package:todoapp/pages/ChooseAction.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key});
@@ -11,6 +13,25 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: violet,
+
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              color:white,
+              size: 30
+              ,),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LogoutPopupCard()), 
+                  );},
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           Container(
@@ -21,16 +42,16 @@ class Home extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage('path_to_your_image'),
+                  backgroundImage: AssetImage('../assets/images/user.png'),
                   radius: 40,
                 ),
-                SizedBox(width: 20), // Adjust spacing as needed
+                SizedBox(width: 20), 
                 Text(
                   'Hi!\nDulaj Bhagya',
                   style: GoogleFonts.openSans(
                       fontSize: 30,
                       color: Colors.white,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -56,7 +77,8 @@ class Home extends StatelessWidget {
                     onDismissed: (direction) {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => DeletePopupCard()), 
+                          MaterialPageRoute(
+                              builder: (context) => DeletePopupCard()),
                         );
                     },
                     background: Container(
@@ -67,7 +89,6 @@ class Home extends StatelessWidget {
                     ),
                     child: ToDoItems(),
                   ),
-                  // Repeat Dismissible for each ToDoItem
                 ],
               ),
             ),

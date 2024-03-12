@@ -30,7 +30,7 @@ class BottomNav extends StatelessWidget {
               ),
               IconButton(
                 padding: EdgeInsets.only(right: 20),
-                icon: const Icon(
+                icon:  Icon(
                   Icons.account_circle,
                   color: white,
                   size: 40,
@@ -48,7 +48,11 @@ class BottomNav extends StatelessWidget {
                           MaterialPageRoute(builder: (context) => PopupCard()), 
                         );
               },
-              child: const Icon(Icons.add,),
+              child:  Icon(Icons.add,
+              color: violet,
+              size: 30,
+              weight: 30,
+              ),
               backgroundColor: white,
               elevation: 0,
             ),
