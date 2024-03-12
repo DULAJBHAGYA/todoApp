@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
+import 'package:todoapp/pages/ChooseAction.dart';
 import 'package:todoapp/pages/Home.dart';
 
 class LogoutPopupCard extends StatelessWidget {
@@ -47,8 +48,10 @@ class LogoutPopupCard extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          String title = _titleController.text;
-                          Navigator.of(context).pop();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ChooseAction()),
+                          );
                         },
                         child: Text(
                           'Yes',
@@ -58,6 +61,7 @@ class LogoutPopupCard extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
+
                       TextButton(
                         style: TextButton.styleFrom(
                           backgroundColor: violet,

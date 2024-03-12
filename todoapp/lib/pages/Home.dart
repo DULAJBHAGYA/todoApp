@@ -42,7 +42,7 @@ class Home extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage('../assets/images/user.png'),
+                  backgroundImage: AssetImage('../assets/images/logo.png'),
                   radius: 40,
                 ),
                 SizedBox(width: 20), 
