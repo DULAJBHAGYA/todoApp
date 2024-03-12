@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/pages/Home.dart';
 
-class DeletePopupCard extends StatelessWidget {
+class LogoutPopupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController _titleController = TextEditingController();
@@ -17,7 +17,7 @@ class DeletePopupCard extends StatelessWidget {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              'Are you sure you want to delete Task?',
+              'Are you sure you want to logout?',
               style: GoogleFonts.openSans(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
@@ -100,7 +100,7 @@ void main() {
       appBar: AppBar(
         title: Text('Popup Example'),
       ),
-      body: DeletePopupCard(),
+      body: LogoutPopupCard(),
     ),
   ));
 }

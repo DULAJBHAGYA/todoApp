@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:todoapp/pages/ChooseAction.dart';
 import 'package:todoapp/pages/Home.dart';
+import 'package:todoapp/pages/landing.dart';
 import 'package:todoapp/pages/login.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/pages/register.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Navigation',
       initialRoute: '/',
       routes: {
-        '/': (context) => ChooseAction(),
+        '/': (context) => SplashScreen(),
         // '/menu': (context) => Menu(),
         // '/calender': (context) => CalendarApp(),
       },

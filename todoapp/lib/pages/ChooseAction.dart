@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/pages/login.dart';
@@ -36,6 +37,32 @@ class ChooseAction extends StatelessWidget {
               fit: BoxFit.cover,
             ),
             SizedBox(height: 20),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Let's get",
+                style: GoogleFonts.openSans(
+                  fontSize:30,
+                  fontWeight:FontWeight.bold,
+                  color:violet,
+                ),
+                ),
+
+                SizedBox(width: 5,),
+
+                Text('started',
+                style: GoogleFonts.openSans(
+                  fontSize:30,
+                  fontWeight:FontWeight.bold,
+                  color:darkblue,
+                ),
+                )
+              ],
+            ),
+
+            SizedBox(height: 40),
 
             GestureDetector(
               onTap: () {

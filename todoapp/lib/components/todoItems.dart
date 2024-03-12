@@ -17,8 +17,7 @@ class _ToDoItemsState extends State<ToDoItems> {
     return Container(
       margin: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Color.fromARGB(
-            255, 220, 192, 232), 
+        color: lightBlue, 
         borderRadius: BorderRadius.circular(20), 
       ),
       child: ListTile(
