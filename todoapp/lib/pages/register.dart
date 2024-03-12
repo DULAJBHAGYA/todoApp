@@ -1,12 +1,42 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:todoapp/color.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../color.dart';
 import 'login.dart';
+
+class User {
+  String name;
+  String userName;
+  String email;
+  String password;
+
+  User({
+    required this.name,
+    required this.userName,
+    required this.email,
+    required this.password,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'userName': userName,
+      'email': email,
+      'password': password,
+    };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      name: json['name'],
+      userName: json['userName'],
+      email: json['email'],
+      password: json['password'],
+    );
+  }
+}
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -20,40 +50,42 @@ class _RegisterState extends State<Register> {
   bool _confirmPasswordVisible = false;
 
   TextEditingController _nameController = TextEditingController();
-  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _userNameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
-  bool _isButtonDisabled = false;
-
   @override
   void dispose() {
     _nameController.dispose();
-    _usernameController.dispose();
+    _userNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
- Future<void> _saveUserData() async {
+ void _saveUserData() async {
   if (_formKey.currentState!.validate()) {
-    final jsonData = {
-      'name': _nameController.text,
-      'username': _usernameController.text,
-      'email': _emailController.text,
-      'password': _passwordController.text,
-    };
+    User user = User(
+      name: _nameController.text,
+      userName: _userNameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      print('Directory Path: ${directory.path}'); // Print directory path for debugging
-      final file = File('${directory.path}/user.json');
-      await file.writeAsString(jsonEncode(jsonData));
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> users = prefs.getStringList('users') ?? [];
+      users.add(json.encode(user.toJson())); 
+      await prefs.setStringList('users', users);
       print('User data saved successfully');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
     } catch (e) {
       print('Error saving user data: $e');
     }
@@ -110,54 +142,31 @@ class _RegisterState extends State<Register> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextFormField(
+                      TextField(
                         controller: _nameController,
                         decoration: InputDecoration(
                           labelText: 'Name',
-                          labelStyle: TextStyle(
+                          labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      TextFormField(
-                        controller: _usernameController,
+                      SizedBox(height: 15),
+                      TextField(
+                        controller: _userNameController,
                         decoration: InputDecoration(
                           labelText: 'User Name',
-                          labelStyle: TextStyle(
+                          labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your username';
-                          }
-                          return null;
-                        },
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
+                      SizedBox(height: 15),
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          labelStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: violet,
-                          ),
-                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -167,19 +176,28 @@ class _RegisterState extends State<Register> {
                           }
                           return null;
                         },
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: !_passwordVisible,
                         decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: TextStyle(
+                          labelText: 'E-mail',
+                          labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: !_passwordVisible,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
+                          if (value.length < 8) {
+                            return 'Password must be at least 8 characters';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
                           suffixIcon: IconButton(
                             icon: Icon(
                               _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -191,42 +209,27 @@ class _RegisterState extends State<Register> {
                               });
                             },
                           ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          // Password strength validation
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters';
-                          }
-                          if (!value.contains(RegExp(r'[A-Z]'))) {
-                            return 'Password must contain uppercase letters';
-                          }
-                          if (!value.contains(RegExp(r'[a-z]'))) {
-                            return 'Password must contain lowercase letters';
-                          }
-                          if (!value.contains(RegExp(r'[0-9]'))) {
-                            return 'Password must contain numbers';
-                          }
-                          if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-                            return 'Password must contain special characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: !_confirmPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          labelStyle: TextStyle(
+                          labelText: 'Password',
+                          labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
                           ),
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: !_confirmPasswordVisible,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
                           suffixIcon: IconButton(
                             icon: Icon(
                               _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -238,47 +241,28 @@ class _RegisterState extends State<Register> {
                               });
                             },
                           ),
+                          labelText: 'Confirm Password',
+                          labelStyle: GoogleFonts.openSans(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                          ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
                       ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 15),
                       GestureDetector(
-                        onTap: () async {
-                          if (!_formKey.currentState!.validate() || _isButtonDisabled) {
-                            return;
-                          }
-                          setState(() {
-                            _isButtonDisabled = true;
-                          });
-                          await _saveUserData();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Login()),
-                          );
-                        },
+                        onTap: _saveUserData,
                         child: Container(
                           height: 50,
                           width: 300,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            color:violet,
+                            color: violet,
                           ),
                           child: Center(
                             child: Text(
                               'SIGN UP',
-                              style: GoogleFonts.openSans                              (
-                                color: Colors.white,
+                              style: GoogleFonts.openSans(
+                                color: white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
@@ -286,9 +270,7 @@ class _RegisterState extends State<Register> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 30,
-                      ),
+                      SizedBox(height: 30),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Column(
@@ -300,7 +282,7 @@ class _RegisterState extends State<Register> {
                               style: GoogleFonts.openSans(
                                 fontSize: 17,
                                 fontWeight: FontWeight.normal,
-                                color:violet,
+                                color: violet,
                               ),
                             ),
                             GestureDetector(
@@ -311,7 +293,7 @@ class _RegisterState extends State<Register> {
                                 );
                               },
                               child: Text(
-                                "Sign in",
+                                  "Sign in",
                                 style: GoogleFonts.openSans(
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold,
@@ -327,7 +309,7 @@ class _RegisterState extends State<Register> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

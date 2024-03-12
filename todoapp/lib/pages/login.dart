@@ -1,8 +1,42 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/pages/Home.dart';
 import 'package:todoapp/pages/register.dart';
+
+class User {
+  String name;
+  String userName;
+  String email;
+  String password;
+
+  User({
+    required this.name,
+    required this.userName,
+    required this.email,
+    required this.password,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'userName': userName,
+      'email': email,
+      'password': password,
+    };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      name: json['name'],
+      userName: json['userName'],
+      email: json['email'],
+      password: json['password'],
+    );
+  }
+}
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -12,7 +46,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  bool _passwordVisible = false; 
+  bool _passwordVisible = false;
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -22,6 +56,47 @@ class _LoginState extends State<Login> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _login() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> usersData = prefs.getStringList('users') ?? [];
+    List<User> users = usersData.map((userData) => User.fromJson(json.decode(userData))).toList();
+
+    bool isMatched = users.any((user) => user.email == _emailController.text && user.password == _passwordController.text);
+
+    if (isMatched) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Login failed',
+            style: GoogleFonts.openSans(
+              color: darkblue,
+            ),
+            ),
+            content: Text('Invalid email or password.',
+            style: GoogleFonts.openSans(
+              color: darkblue,
+            ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -82,7 +157,6 @@ class _LoginState extends State<Login> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
                           }
-                          // You can add more validation logic for email here
                           if (!value.contains('@') || !value.contains('.')) {
                             return 'Please enter a valid email address';
                           }
@@ -97,7 +171,7 @@ class _LoginState extends State<Login> {
                             labelStyle: GoogleFonts.openSans(
                               fontWeight: FontWeight.bold,
                               color: violet,
-                              fontSize: 20, // Increase label text size
+                              fontSize: 20,
                             )),
                       ),
                       SizedBox(
@@ -105,26 +179,13 @@ class _LoginState extends State<Login> {
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: !_passwordVisible, // Toggle password visibility
+                        obscureText: !_passwordVisible,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
                           }
-                          // Password strength validation
                           if (value.length < 8) {
                             return 'Password must be at least 8 characters';
-                          }
-                          if (!value.contains(RegExp(r'[A-Z]'))) {
-                            return 'Password must contain uppercase letters';
-                          }
-                          if (!value.contains(RegExp(r'[a-z]'))) {
-                            return 'Password must contain lowercase letters';
-                          }
-                          if (!value.contains(RegExp(r'[0-9]'))) {
-                            return 'Password must contain numbers';
-                          }
-                          if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-                            return 'Password must contain special characters';
                           }
                           return null;
                         },
@@ -135,7 +196,6 @@ class _LoginState extends State<Login> {
                               color: Colors.grey,
                             ),
                             onPressed: () {
-                              // Toggle password visibility
                               setState(() {
                                 _passwordVisible = !_passwordVisible;
                               });
@@ -145,7 +205,7 @@ class _LoginState extends State<Login> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
-                            fontSize: 20, // Increase label text size
+                            fontSize: 20,
                           ),
                         ),
                       ),
@@ -154,8 +214,7 @@ class _LoginState extends State<Login> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          'Forgot password?',
+                        child: Text(                      'Forgot password?',
                           style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
@@ -165,15 +224,7 @@ class _LoginState extends State<Login> {
                       ),
                       SizedBox(height: 70),
                       GestureDetector(
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            // If the form is valid, navigate to Home screen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => Home()),
-                            );
-                          }
-                        },
+                        onTap: _login,
                         child: Container(
                           height: 50,
                           width: 300,
@@ -193,9 +244,7 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 50,
-                      ),
+                      SizedBox(height: 50),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Column(
@@ -240,3 +289,5 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
+                         
