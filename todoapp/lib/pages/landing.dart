@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 
 import 'package:todoapp/pages/ChooseAction.dart';
@@ -87,17 +88,37 @@ class _SplashScreenState extends State<SplashScreen>
           child: AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              return Transform.translate(
-                offset: _slideAnimation.value,
-                child: Opacity(
-                  opacity: _opacityAnimation.value,
-                  child: Image.network(
-                    'https://i.ibb.co/WsCkbsB/logo.png',
-                    fit: BoxFit.contain,
-                    width: 200,
-                    height: 200,
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Transform.translate(
+                    offset: _slideAnimation.value,
+                    child: Opacity(
+                      opacity: _opacityAnimation.value,
+                      child: Image.network(
+                        'https://i.ibb.co/WsCkbsB/logo.png',
+                        fit: BoxFit.contain,
+                        width: 200,
+                        height: 200,
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 20),
+                  Transform.translate(
+                    offset: _slideAnimation.value,
+                    child: Opacity(
+                      opacity: _opacityAnimation.value,
+                      child: Text(
+                        'L I S T I F Y',
+                        style: GoogleFonts.openSans(
+                          color: Colors.white,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),
