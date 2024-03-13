@@ -17,6 +17,7 @@ class _DashboardState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: violet,
         actions: [
           IconButton(
@@ -154,6 +155,7 @@ class _DashboardState extends State<Home> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 8),
                       child: Container(
+                        height: 50,
                         decoration: BoxDecoration(
                           color: white,
                           borderRadius: BorderRadius.circular(10),
