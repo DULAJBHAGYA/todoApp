@@ -22,8 +22,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
-        // '/menu': (context) => Menu(),
-        // '/calender': (context) => CalendarApp(),
       },
     );
   }

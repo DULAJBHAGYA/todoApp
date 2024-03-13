@@ -25,7 +25,7 @@ class _ToDoItemsState extends State<ToDoItems> {
           setState(() {
             isChecked = !isChecked;
           });
-          print('Clicked on to do item.');
+          print('Clicked on to do item');
         },
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         leading: Icon(
@@ -36,7 +36,6 @@ class _ToDoItemsState extends State<ToDoItems> {
           'Check Mail',
           style: TextStyle(
             fontSize: 16,
-            color: black,
           ),
         ),
         trailing: Row(
@@ -63,22 +62,7 @@ class _ToDoItemsState extends State<ToDoItems> {
               ),
             ),
 
-            // Container(
-            //   height: 35,
-            //   width: 35,
-            //   decoration: BoxDecoration(
-            //     color: violet,
-            //     borderRadius: BorderRadius.circular(5),
-            //   ),
-            //   child: IconButton(
-            //     color: Colors.white,
-            //     iconSize: 18,
-            //     icon: Icon(Icons.delete),
-            //     onPressed: () {
-            //       print('Clicked on delete icon');
-            //     },
-            //   ),
-            // ),
+            
           ],
         ),
       ),

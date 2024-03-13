@@ -171,7 +171,7 @@ class _LoginState extends State<Login> {
                             labelStyle: GoogleFonts.openSans(
                               fontWeight: FontWeight.bold,
                               color: violet,
-                              fontSize: 20,
+                              fontSize: 17,
                             )),
                       ),
                       SizedBox(
@@ -205,7 +205,7 @@ class _LoginState extends State<Login> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
-                            fontSize: 20,
+                            fontSize: 17,
                           ),
                         ),
                       ),

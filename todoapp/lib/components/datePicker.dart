@@ -3,6 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:todoapp/color.dart';
 
 class DatePickerWidget extends StatefulWidget {
+  final ValueSetter<DateTime> onDateSelected;
+
+  DatePickerWidget({required this.onDateSelected});
+
   @override
   _DatePickerWidgetState createState() => _DatePickerWidgetState();
 }
@@ -19,19 +23,18 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
           Text(
             "${selectedDate.year} - ${selectedDate.month} - ${selectedDate.day}",
             style: GoogleFonts.openSans(
-              fontSize:15,
-              color:Colors.black,
+              fontSize: 15,
+              color: Colors.black,
             ),
           ),
-
           ElevatedButton(
-             style: ElevatedButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               backgroundColor: violet,
-              minimumSize: Size(400, 50), 
+              minimumSize: Size(400, 50),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(5),
               ),
-             ),
+            ),
             onPressed: () async {
               final DateTime? pickedDate = await showDatePicker(
                 context: context,
@@ -43,6 +46,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
                 setState(() {
                   selectedDate = pickedDate;
                 });
+                widget.onDateSelected(pickedDate);
               }
             },
             child: Text(
@@ -65,7 +69,11 @@ void main() {
       appBar: AppBar(
         title: Text('Date Picker Example'),
       ),
-      body: DatePickerWidget(),
+      body: DatePickerWidget(
+        onDateSelected: (DateTime date) {
+          print('Selected Date: $date');
+        },
+      ),
     ),
   ));
 }
