@@ -9,7 +9,7 @@ class DeletePopupCard extends StatelessWidget {
     TextEditingController _titleController = TextEditingController();
 
     const double cardWidth = 300.0;
-    const double cardHeight = 100.0;
+    const double cardHeight = 80.0;
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       showDialog(
@@ -20,8 +20,8 @@ class DeletePopupCard extends StatelessWidget {
               'Are you sure you want to delete Task?',
               style: GoogleFonts.openSans(
                 fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: violet, // Assuming 'violet' is defined somewhere
+                fontWeight: FontWeight.w400,
+                color: darkblue, // Assuming 'violet' is defined somewhere
               ),
             ),
             contentPadding: EdgeInsets.all(20.0), // Adjust padding as needed
@@ -33,19 +33,12 @@ class DeletePopupCard extends StatelessWidget {
                 children: [
                   
 
-                  SizedBox(height: 50,),
+                  SizedBox(height: 30,),
                   
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: violet,
-                          minimumSize: Size(100, 50),
-                          shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
                         onPressed: () {
                           String title = _titleController.text;
                           Navigator.of(context).pop();
@@ -53,19 +46,12 @@ class DeletePopupCard extends StatelessWidget {
                         child: Text(
                           'Yes',
                           style: GoogleFonts.openSans(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                              color: darkblue,
+                              fontSize: 15,
+                              ),
                         ),
                       ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: violet,
-                          minimumSize: Size(100, 50),
-                          shape: BeveledRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
+                      ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -75,9 +61,9 @@ class DeletePopupCard extends StatelessWidget {
                         child: Text(
                           'No',
                           style: GoogleFonts.openSans(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                              color: darkblue,
+                              fontSize: 15,
+                              ),
                         ),
                       ),
                     ],

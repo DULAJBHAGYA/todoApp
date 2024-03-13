@@ -149,6 +149,7 @@ class _RegisterState extends State<Register> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
+                            fontSize:17
                           ),
                         ),
                       ),
@@ -160,6 +161,7 @@ class _RegisterState extends State<Register> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
+                            fontSize:17
                           ),
                         ),
                       ),
@@ -181,6 +183,7 @@ class _RegisterState extends State<Register> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
+                            fontSize:17
                           ),
                         ),
                       ),
@@ -213,6 +216,7 @@ class _RegisterState extends State<Register> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
+                            fontSize:17
                           ),
                         ),
                       ),
@@ -245,6 +249,7 @@ class _RegisterState extends State<Register> {
                           labelStyle: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
+                            fontSize:17
                           ),
                         ),
                       ),
