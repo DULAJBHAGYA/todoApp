@@ -24,28 +24,43 @@ class NetworkService {
 
   static NetworkService get instance => _instance;
 
-  Future<dynamic> registerUser(String name, String username, String email,
-      String password, String confirmedpassword) async {
-    try {
-      final response = await _dio.post(
-        '$baseUrl/users',
-        data: _encoder.convert({
-          'name': name,
-          'username': username,
-          'email': email,
-          'password': password,
-          'confirmedpassword': confirmedpassword,
-        }),
-      );
+Future<dynamic> registerUser(String Name, String UserName, String Email,
+    String Password, String ConfirmedPassword) async {
+  try {
+    final response = await _dio.post(
+      '$baseUrl/users',
+      data: _encoder.convert({
+        'name': Name,
+        'username': UserName,
+        'email': Email,
+        'password': Password,
+        'confirmedPassword': ConfirmedPassword,
+      }),
+    );
 
+    // Check if the response status code indicates success
+    if (response.statusCode == 200) {
       // Parse the JSON response into a User object
       return User.fromJson(response.data);
-    } on DioError catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.toString());
-    } catch (e) {
-      rethrow;
+    } else {
+      // If the response status code indicates an error, throw an exception with the status code and message
+      throw Exception('Registration failed: ${response.statusCode} ${response.statusMessage}');
     }
+  } on DioError catch (e) {
+    // Handle Dio errors
+    throw Exception(
+      e.response?.data['detail'] is String
+          ? e.response!.data['detail']
+          : e.response?.data['detail'].toString() ?? e.toString(),
+    );
+  } catch (e) {
+    // Handle other exceptions
+    rethrow;
   }
+}
+
+
+
 
   Future<dynamic> loginUser(String email, String password) async {
     try {
