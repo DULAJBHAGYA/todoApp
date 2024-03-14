@@ -9,7 +9,7 @@ class NetworkService {
   static final NetworkService _instance = NetworkService.internal();
 
   // Replace this with your actual base URL
-  static const String baseUrl = 'http://your-api-url.com';
+  static const String baseUrl = 'http://192.168.1.12:8060';
 
   NetworkService.internal();
 

@@ -1,21 +1,17 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
+
+import 'user.dart';
 
 class NetworkService {
   late final Dio _dio;
   final JsonEncoder _encoder = JsonEncoder();
 
-  static final NetworkService _instance = NetworkService.internal();
+  static final NetworkService _instance = NetworkService._internal();
 
-  // Replace this with your actual base URL
-  static const String baseUrl = 'http://your-api-url.com';
+  static const String baseUrl = 'http://192.168.1.12:8066';
 
-  NetworkService.internal();
-
-  static NetworkService get instance => _instance;
-
-  Future<void> initClient() async {
+  NetworkService._internal() {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
@@ -23,21 +19,27 @@ class NetworkService {
         receiveTimeout: Duration(milliseconds: 60000),
       ),
     );
-    // A place for interceptors. For example, for authentication and logging
+    // Initialize any interceptors or other configurations here if needed
   }
 
-  Future<dynamic> registerUser(String name, String username, String email, String password) async {
+  static NetworkService get instance => _instance;
+
+  Future<dynamic> registerUser(String name, String username, String email,
+      String password, String confirmedpassword) async {
     try {
       final response = await _dio.post(
-        '$baseUrl/register',
+        '$baseUrl/users',
         data: _encoder.convert({
           'name': name,
           'username': username,
           'email': email,
           'password': password,
+          'confirmedpassword': confirmedpassword,
         }),
       );
-      return response.data;
+
+      // Parse the JSON response into a User object
+      return User.fromJson(response.data);
     } on DioError catch (e) {
       throw Exception(e.response?.data['detail'] ?? e.toString());
     } catch (e) {
@@ -61,4 +63,17 @@ class NetworkService {
       rethrow;
     }
   }
+
+  // Initialize the Dio client
+  Future<void> initClient() async {
+    _dio.interceptors.add(
+      // Add any interceptors if needed
+      InterceptorsWrapper(onRequest: (options, handler) {
+        // Modify requests here if needed
+        return handler.next(options);
+      }),
+    );
+  }
+
+  // Other methods...
 }
