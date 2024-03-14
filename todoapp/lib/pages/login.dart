@@ -155,10 +155,7 @@ class _LoginState extends State<Login> {
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@') || !value.contains('.')) {
-                            return 'Please enter a valid email address';
+                            return 'Please enter your username';
                           }
                           return null;
                         },
@@ -167,7 +164,7 @@ class _LoginState extends State<Login> {
                               Icons.check,
                               color: Colors.grey,
                             ),
-                            labelText: 'E Mail',
+                            labelText: 'User Name',
                             labelStyle: GoogleFonts.openSans(
                               fontWeight: FontWeight.bold,
                               color: violet,
