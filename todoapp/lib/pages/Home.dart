@@ -11,12 +11,12 @@ class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
-  _DashboardState createState() => _DashboardState();
+  _HomeState createState() => _HomeState();
 }
 
-class _DashboardState extends State<Home> {
+class _HomeState extends State<Home> {
   List<Task> tasks = [];
-  String? username; // Variable to hold the username
+  String? username;
 
   @override
   void initState() {
@@ -31,12 +31,15 @@ class _DashboardState extends State<Home> {
       if (isExpired) {
         showSessionExpiredDialog();
       } else {
-        final username = extractUsernameFromToken(token); // Retrieve username from token
+        final username = extractUsernameFromToken(token);
         setState(() {
           this.username = username;
         });
-        fetchTasks(username); // Fetch tasks associated with the logged-in user
+        fetchTasks(username);
       }
+    } else {
+      // Handle null token case
+      navigateToLoginPage();
     }
   }
 
@@ -85,13 +88,10 @@ class _DashboardState extends State<Home> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                logout();
+              onPressed: () async {
+                await logout();
                 Navigator.of(context).pop();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChooseAction()),
-                );
+                navigateToLoginPage();
               },
               child: Text('OK'),
             ),
@@ -101,10 +101,17 @@ class _DashboardState extends State<Home> {
     );
   }
 
+  void navigateToLoginPage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ChooseAction()),
+    );
+  }
+
   String extractUsernameFromToken(String token) {
     final parts = token.split('.');
     if (parts.length != 3) {
-      return 'Unknown'; // Default value if token is invalid
+      return 'Unknown';
     }
 
     final payload = parts[1];
@@ -116,7 +123,7 @@ class _DashboardState extends State<Home> {
     final payloadJson = utf8.decode(base64Url.decode(decodedPayload));
     final payloadMap = json.decode(payloadJson);
 
-    return payloadMap['username'] ?? 'Unknown'; // Assuming username is stored in the payload
+    return payloadMap['username'] ?? 'Unknown';
   }
 
   Future<String?> getToken() async {
@@ -137,15 +144,49 @@ class _DashboardState extends State<Home> {
       });
     } catch (e) {
       // Handle errors
+      print('Error fetching tasks: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to fetch tasks. Please try again later.'),
+      ));
     }
   }
 
   Future<void> addTask(String taskName) async {
     try {
-      await TaskService.instance.createTask(taskName, DateTime.now());
-      fetchTasks(username!); // Refresh the task list after adding a new task
+      await TaskService.instance.createTask(taskName);
+      fetchTasks(username!);
     } catch (e) {
       // Handle errors
+      print('Error adding task: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to add task. Please try again later.'),
+      ));
+    }
+  }
+
+  Future<void> updateTask(Task task) async {
+    try {
+      await TaskService.instance.updateTask(task.id, task.name,task.completed as DateTime);
+      fetchTasks(username!);
+    } catch (e) {
+      // Handle errors
+      print('Error updating task: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to update task. Please try again later.'),
+      ));
+    }
+  }
+
+  Future<void> deleteTask(Task task) async {
+    try {
+      await TaskService.instance.deleteTask(task.id);
+      fetchTasks(username!);
+    } catch (e) {
+      // Handle errors
+      print('Error deleting task: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to delete task. Please try again later.'),
+      ));
     }
   }
 
@@ -155,6 +196,14 @@ class _DashboardState extends State<Home> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: violet,
+        title: Text(
+          'Hello! \n${username ?? 'Username'}',
+          style: GoogleFonts.openSans(
+            color: white,
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             onPressed: () async {
@@ -167,18 +216,15 @@ class _DashboardState extends State<Home> {
                     actions: [
                       TextButton(
                         onPressed: () async {
-                          Navigator.of(context).pop(true); // Return true to indicate logout confirmed
-                          await logout(); // Logout user
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => ChooseAction()),
-                          );
+                          Navigator.of(context).pop(true);
+                          await logout();
+                          navigateToLoginPage();
                         },
                         child: Text("Yes"),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(false); // Return false to indicate cancel
+                          Navigator.of(context).pop(false);
                         },
                         child: Text("No"),
                       ),
@@ -188,10 +234,7 @@ class _DashboardState extends State<Home> {
               );
 
               if (logoutConfirmed == true) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChooseAction()),
-                );
+                navigateToLoginPage();
               }
             },
             icon: Icon(
@@ -218,42 +261,14 @@ class _DashboardState extends State<Home> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage('../assets/images/logo.png'),
-                  radius: 40,
-                ),
-                SizedBox(width: 20),
-                Container(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(
-                    'Hello! \n${username ?? 'Username'}', // Display username
-                    style: GoogleFonts.openSans(
-                      color: white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
             SizedBox(height: 20),
-            Container(
-              padding: EdgeInsets.all(20),
-            ),
             Expanded(
               child: ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
-                  final color =
-                      Color(0xFFEFEFEF).withOpacity((index + 1) / tasks.length);
                   return Dismissible(
-                    key: Key(task.name),
+                    key: Key(task.id.toString()),
                     background: Container(
                       color: Colors.red,
                       alignment: Alignment.centerRight,
@@ -267,62 +282,60 @@ class _DashboardState extends State<Home> {
                       return await showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                                                      return AlertDialog(
-                              title: const Text("Confirm"),
-                              content: const Text("Do you want to delete the task?"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  child: const Text("Delete"),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text("Cancel"),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      onDismissed: (direction) {
-                        setState(() {
-                          tasks.removeAt(index);
-                        });
-                      },
-                      direction: DismissDirection.endToStart,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: white,
-                            borderRadius: BorderRadius.circular(10),
+                          return AlertDialog(
+                            title: const Text("Confirm"),
+                            content: const Text("Do you want to delete the task?"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text("Delete"),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text("Cancel"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    onDismissed: (direction) {
+                      deleteTask(task);
+                    },
+                    direction: DismissDirection.endToStart,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: task.completed,
+                            onChanged: (value) {
+                              setState(() {
+                                task.completed = value ?? false;
+                              });
+                              updateTask(task);
+                            },
                           ),
-                          child: ListTile(
-                            leading: Checkbox(
-                              value: task.completed,
-                              onChanged: (value) {
-                                setState(() {
-                                  task.completed = value ?? false;
-                                });
-                              },
-                            ),
-                            title: Text(task.name),
-                            trailing: IconButton(
-                              icon: Icon(Icons.edit, color: violet),
-                              onPressed: () {
-                                _showEditTaskDialog(context, index, task.name);
-                              },
-                            ),
+                          title: Text(task.name),
+                          trailing: IconButton(
+                            icon: Icon(Icons.edit, color: violet),
+                            onPressed: () {
+                              _showEditTaskDialog(context, task);
+                            },
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -347,7 +360,10 @@ class _DashboardState extends State<Home> {
           title: Text(
             'Add Task',
             style: GoogleFonts.openSans(
-              color: darkblue, fontWeight: FontWeight.w400, fontSize: 17),
+              color: darkblue,
+              fontWeight: FontWeight.w400,
+              fontSize: 17,
+            ),
           ),
           content: TextField(
             onChanged: (value) {
@@ -359,7 +375,7 @@ class _DashboardState extends State<Home> {
             TextButton(
               onPressed: () {
                 if (newTask.trim().isNotEmpty) {
-                  addTask(newTask); // Add task when confirmed
+                  addTask(newTask);
                   Navigator.pop(context);
                 }
               },
@@ -377,8 +393,8 @@ class _DashboardState extends State<Home> {
     );
   }
 
-  void _showEditTaskDialog(BuildContext context, int index, String currentTaskName) {
-    String editedTask = currentTaskName;
+  void _showEditTaskDialog(BuildContext context, Task task) {
+    String editedTask = task.name;
     showDialog(
       context: context,
       builder: (context) {
@@ -388,16 +404,15 @@ class _DashboardState extends State<Home> {
             onChanged: (value) {
               editedTask = value;
             },
-            controller: TextEditingController()..text = currentTaskName,
+            controller: TextEditingController()..text = task.name,
             decoration: InputDecoration(hintText: 'Edit task'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 if (editedTask.trim().isNotEmpty) {
-                  setState(() {
-                    tasks[index].name = editedTask;
-                  });
+                  task.name = editedTask;
+                  updateTask(task);
                   Navigator.pop(context);
                 }
               },
@@ -409,4 +424,3 @@ class _DashboardState extends State<Home> {
     );
   }
 }
-
