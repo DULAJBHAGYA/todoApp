@@ -56,7 +56,10 @@ class _RegisterState extends State<Register> {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Login()),
+                      );
                     },
                     child: Text('OK'),
                   ),

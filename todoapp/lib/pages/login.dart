@@ -3,40 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoapp/color.dart';
+import 'package:todoapp/pages/ChooseAction.dart';
 import 'package:todoapp/pages/Home.dart';
 import 'package:todoapp/pages/register.dart';
-
-class User {
-  String name;
-  String userName;
-  String email;
-  String password;
-
-  User({
-    required this.name,
-    required this.userName,
-    required this.email,
-    required this.password,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'userName': userName,
-      'email': email,
-      'password': password,
-    };
-  }
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      name: json['name'],
-      userName: json['userName'],
-      email: json['email'],
-      password: json['password'],
-    );
-  }
-}
+import '../services/userServices.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -47,57 +17,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool _passwordVisible = false;
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _login() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> usersData = prefs.getStringList('users') ?? [];
-    List<User> users = usersData.map((userData) => User.fromJson(json.decode(userData))).toList();
-
-    bool isMatched = users.any((user) => user.email == _emailController.text && user.password == _passwordController.text);
-
-    if (isMatched) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Login failed',
-            style: GoogleFonts.openSans(
-              color: darkblue,
-            ),
-            ),
-            content: Text('Invalid email or password.',
-            style: GoogleFonts.openSans(
-              color: darkblue,
-            ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +73,7 @@ class _LoginState extends State<Login> {
                         height: 28,
                       ),
                       TextFormField(
-                        controller: _emailController,
+                        controller: _usernameController,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -160,16 +82,17 @@ class _LoginState extends State<Login> {
                           return null;
                         },
                         decoration: InputDecoration(
-                            suffixIcon: Icon(
-                              Icons.check,
-                              color: Colors.grey,
-                            ),
-                            labelText: 'User Name',
-                            labelStyle: GoogleFonts.openSans(
-                              fontWeight: FontWeight.bold,
-                              color: violet,
-                              fontSize: 17,
-                            )),
+                          suffixIcon: Icon(
+                            Icons.check,
+                            color: Colors.grey,
+                          ),
+                          labelText: 'User Name',
+                          labelStyle: GoogleFonts.openSans(
+                            fontWeight: FontWeight.bold,
+                            color: violet,
+                            fontSize: 17,
+                          ),
+                        ),
                       ),
                       SizedBox(
                         height: 28,
@@ -189,7 +112,9 @@ class _LoginState extends State<Login> {
                         decoration: InputDecoration(
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.grey,
                             ),
                             onPressed: () {
@@ -211,7 +136,8 @@ class _LoginState extends State<Login> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Text(                      'Forgot password?',
+                        child: Text(
+                          'Forgot password?',
                           style: GoogleFonts.openSans(
                             fontWeight: FontWeight.bold,
                             color: violet,
@@ -260,7 +186,8 @@ class _LoginState extends State<Login> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => Register()),
+                                  MaterialPageRoute(
+                                      builder: (context) => Register()),
                                 );
                               },
                               child: Text(
@@ -274,17 +201,70 @@ class _LoginState extends State<Login> {
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
-}
 
-                         
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final userName = _usernameController.text.trim();
+        final password = _passwordController.text;
+
+        // Call the loginUser method from the NetworkService class
+        final userData = await NetworkService.instance.loginUser(userName, password);
+
+        // Save the token to SharedPreferences
+        await saveToken(userData['token']);
+
+        // Navigate to the Home screen if login is successful
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      } catch (e) {
+        // Show error message to the user
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'Login failed',
+                style: GoogleFonts.openSans(
+                  color: darkblue,
+                ),
+              ),
+              content: Text(
+                e.toString(),
+                style: GoogleFonts.openSans(
+                  color: darkblue,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  Future<void> saveToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+}
