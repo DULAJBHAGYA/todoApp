@@ -5,18 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/pages/ChooseAction.dart';
 import '../services/task.dart';
-import '../services/taskServices.dart'; // Import the Task class
+import '../services/taskServices.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
-  _HomeState createState() => _HomeState();
+  _DashboardState createState() => _DashboardState();
 }
 
-class _HomeState extends State<Home> {
+class _DashboardState extends State<Home> {
   List<Task> tasks = [];
   String? username;
+  String? token;
 
   @override
   void initState() {
@@ -25,21 +26,14 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> checkTokenValidity() async {
-    final token = await getToken();
+    token = await getToken();
     if (token != null) {
-      final bool isExpired = isTokenExpired(token);
-      if (isExpired) {
-        showSessionExpiredDialog();
-      } else {
-        final username = extractUsernameFromToken(token);
-        setState(() {
-          this.username = username;
-        });
-        fetchTasks(username);
-      }
-    } else {
-      // Handle null token case
-      navigateToLoginPage();
+      final username = extractUsernameFromToken(token!);
+      setState(() {
+        this.username = username;
+      });
+      await TaskService.instance.initClient(token!);
+      fetchTasks(username!, token!);
     }
   }
 
@@ -88,23 +82,19 @@ class _HomeState extends State<Home> {
           ),
           actions: [
             TextButton(
-              onPressed: () async {
-                await logout();
+              onPressed: () {
+                logout();
                 Navigator.of(context).pop();
-                navigateToLoginPage();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChooseAction()),
+                );
               },
               child: Text('OK'),
             ),
           ],
         );
       },
-    );
-  }
-
-  void navigateToLoginPage() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => ChooseAction()),
     );
   }
 
@@ -136,57 +126,44 @@ class _HomeState extends State<Home> {
     await prefs.remove('token');
   }
 
-  Future<void> fetchTasks(String username) async {
+  Future<void> fetchTasks(String username, String token) async {
     try {
-      final tasksData = await TaskService.instance.getTasks(username);
+      final tasksData = await TaskService.instance.getTasks(username, token);
       setState(() {
-        tasks = tasksData.map<Task>((taskJson) => Task.fromJson(taskJson)).toList();
+        tasks =
+            tasksData.map<Task>((taskJson) => Task.fromJson(taskJson)).toList();
       });
     } catch (e) {
       // Handle errors
-      print('Error fetching tasks: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to fetch tasks. Please try again later.'),
-      ));
     }
   }
+
+  Future<void> deleteTask(int index, int taskId) async {
+  try {
+    print('Deleting task with ID: $taskId');
+    final success = await TaskService.instance.deleteTask(index, taskId);
+    if (success) {
+      setState(() {
+        tasks.removeAt(index);
+      });
+      print('Task deleted successfully');
+    } else {
+      print('Failed to delete task');
+    }
+  } catch (e) {
+    print('Error deleting task: $e');
+    // Handle errors
+  }
+}
+
+
 
   Future<void> addTask(String taskName) async {
     try {
-      await TaskService.instance.createTask(taskName);
-      fetchTasks(username!);
+      await TaskService.instance.createTask(taskName, DateTime.now());
+      fetchTasks(username!, token!);
     } catch (e) {
       // Handle errors
-      print('Error adding task: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to add task. Please try again later.'),
-      ));
-    }
-  }
-
-  Future<void> updateTask(Task task) async {
-    try {
-      await TaskService.instance.updateTask(task.id, task.name,task.completed as DateTime);
-      fetchTasks(username!);
-    } catch (e) {
-      // Handle errors
-      print('Error updating task: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to update task. Please try again later.'),
-      ));
-    }
-  }
-
-  Future<void> deleteTask(Task task) async {
-    try {
-      await TaskService.instance.deleteTask(task.id);
-      fetchTasks(username!);
-    } catch (e) {
-      // Handle errors
-      print('Error deleting task: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to delete task. Please try again later.'),
-      ));
     }
   }
 
@@ -196,46 +173,10 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: violet,
-        title: Text(
-          'Hello! \n${username ?? 'Username'}',
-          style: GoogleFonts.openSans(
-            color: white,
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         actions: [
           IconButton(
-            onPressed: () async {
-              bool logoutConfirmed = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Confirm Logout"),
-                    content: Text("Do you want to logout?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop(true);
-                          await logout();
-                          navigateToLoginPage();
-                        },
-                        child: Text("Yes"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text("No"),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              if (logoutConfirmed == true) {
-                navigateToLoginPage();
-              }
+            onPressed: () {
+              _confirmLogout(context);
             },
             icon: Icon(
               Icons.logout,
@@ -261,14 +202,40 @@ class _HomeState extends State<Home> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  backgroundImage: AssetImage('../assets/images/logo.png'),
+                  radius: 40,
+                ),
+                SizedBox(width: 20),
+                Container(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    'Hello! \n${username ?? 'Username'}',
+                    style: GoogleFonts.openSans(
+                      color: white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.all(20),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
                   return Dismissible(
-                    key: Key(task.id.toString()),
+                    key: Key(task.id.toString()), // Use task ID as the key
                     background: Container(
                       color: Colors.red,
                       alignment: Alignment.centerRight,
@@ -284,14 +251,17 @@ class _HomeState extends State<Home> {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text("Confirm"),
-                            content: const Text("Do you want to delete the task?"),
+                            content:
+                                const Text("Do you want to delete the task?"),
                             actions: <Widget>[
                               TextButton(
-                                onPressed: () => Navigator.of(context).pop(true),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
                                 child: const Text("Delete"),
                               ),
                               TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
                                 child: const Text("Cancel"),
                               ),
                             ],
@@ -300,14 +270,12 @@ class _HomeState extends State<Home> {
                       );
                     },
                     onDismissed: (direction) {
-                      deleteTask(task);
+                      deleteTask(index, task.id as int); // Correctly pass taskId as an integer
                     },
                     direction: DismissDirection.endToStart,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 8,
-                      ),
+                          horizontal: 20, vertical: 8),
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
@@ -321,14 +289,13 @@ class _HomeState extends State<Home> {
                               setState(() {
                                 task.completed = value ?? false;
                               });
-                              updateTask(task);
                             },
                           ),
                           title: Text(task.name),
                           trailing: IconButton(
                             icon: Icon(Icons.edit, color: violet),
                             onPressed: () {
-                              _showEditTaskDialog(context, task);
+                              _showEditTaskDialog(context, index, task.name);
                             },
                           ),
                         ),
@@ -360,10 +327,7 @@ class _HomeState extends State<Home> {
           title: Text(
             'Add Task',
             style: GoogleFonts.openSans(
-              color: darkblue,
-              fontWeight: FontWeight.w400,
-              fontSize: 17,
-            ),
+                color: darkblue, fontWeight: FontWeight.w400, fontSize: 17),
           ),
           content: TextField(
             onChanged: (value) {
@@ -393,8 +357,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _showEditTaskDialog(BuildContext context, Task task) {
-    String editedTask = task.name;
+  void _showEditTaskDialog(
+      BuildContext context, int index, String currentTaskName) {
+    String editedTask = currentTaskName;
     showDialog(
       context: context,
       builder: (context) {
@@ -404,15 +369,16 @@ class _HomeState extends State<Home> {
             onChanged: (value) {
               editedTask = value;
             },
-            controller: TextEditingController()..text = task.name,
+            controller: TextEditingController()..text = currentTaskName,
             decoration: InputDecoration(hintText: 'Edit task'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 if (editedTask.trim().isNotEmpty) {
-                  task.name = editedTask;
-                  updateTask(task);
+                  setState(() {
+                    tasks[index].name = editedTask;
+                  });
                   Navigator.pop(context);
                 }
               },
@@ -422,5 +388,46 @@ class _HomeState extends State<Home> {
         );
       },
     );
+  }
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    bool logoutConfirmed = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Logout"),
+          content: Text("Do you want to logout?"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+                await logout();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChooseAction()),
+                ).then((_) {
+                  // Fetch tasks after user logs in again
+                  checkTokenValidity();
+                });
+              },
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (logoutConfirmed == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ChooseAction()),
+      );
+    }
   }
 }

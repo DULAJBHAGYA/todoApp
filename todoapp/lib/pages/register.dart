@@ -145,6 +145,9 @@ class _RegisterState extends State<Register> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        
+                        SizedBox(height: 15),
+
                         TextFormField(
                           controller: _nameController,
                           onChanged: (_) => _validateForm(),
@@ -157,6 +160,8 @@ class _RegisterState extends State<Register> {
                           ),
                         ),
                         SizedBox(height: 15),
+
+                        
                         TextFormField(
                           controller: _userNameController,
                           onChanged: (_) => _validateForm(),

@@ -243,7 +243,7 @@ class _LoginState extends State<Login> {
                 ),
               ),
               content: Text(
-                e.toString(),
+                'Invalid user name or password. ',
                 style: GoogleFonts.openSans(
                   color: darkblue,
                 ),
