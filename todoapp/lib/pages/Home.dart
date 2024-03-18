@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/pages/ChooseAction.dart';
 import '../services/task.dart';
-import '../services/taskServices.dart'; // Import the Task class
+import '../services/taskServices.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -16,7 +16,8 @@ class Home extends StatefulWidget {
 
 class _DashboardState extends State<Home> {
   List<Task> tasks = [];
-  String? username; // Variable to hold the username
+  String? username;
+  String? token;
 
   @override
   void initState() {
@@ -25,18 +26,14 @@ class _DashboardState extends State<Home> {
   }
 
   Future<void> checkTokenValidity() async {
-    final token = await getToken();
+    token = await getToken();
     if (token != null) {
-      final bool isExpired = isTokenExpired(token);
-      if (isExpired) {
-        showSessionExpiredDialog();
-      } else {
-        final username = extractUsernameFromToken(token); // Retrieve username from token
-        setState(() {
-          this.username = username;
-        });
-        fetchTasks(username); // Fetch tasks associated with the logged-in user
-      }
+      final username = extractUsernameFromToken(token!);
+      setState(() {
+        this.username = username;
+      });
+      await TaskService.instance.initClient(token!);
+      fetchTasks(username!, token!);
     }
   }
 
@@ -104,7 +101,7 @@ class _DashboardState extends State<Home> {
   String extractUsernameFromToken(String token) {
     final parts = token.split('.');
     if (parts.length != 3) {
-      return 'Unknown'; // Default value if token is invalid
+      return 'Unknown';
     }
 
     final payload = parts[1];
@@ -116,7 +113,7 @@ class _DashboardState extends State<Home> {
     final payloadJson = utf8.decode(base64Url.decode(decodedPayload));
     final payloadMap = json.decode(payloadJson);
 
-    return payloadMap['username'] ?? 'Unknown'; // Assuming username is stored in the payload
+    return payloadMap['username'] ?? 'Unknown';
   }
 
   Future<String?> getToken() async {
@@ -129,21 +126,46 @@ class _DashboardState extends State<Home> {
     await prefs.remove('token');
   }
 
-  Future<void> fetchTasks(String username) async {
+  Future<void> fetchTasks(String username, String token) async {
     try {
-      final tasksData = await TaskService.instance.getTasks(username);
+      final tasksData = await TaskService.instance.getTasks(username, token);
       setState(() {
-        tasks = tasksData.map<Task>((taskJson) => Task.fromJson(taskJson)).toList();
+        tasks =
+            tasksData.map<Task>((taskJson) => Task.fromJson(taskJson)).toList();
       });
     } catch (e) {
       // Handle errors
     }
   }
 
+  Future<void> deleteTask(int index, int taskId) async {
+  try {
+    print('Deleting task with ID: $taskId');
+    final success = await TaskService.instance.deleteTask(index, taskId);
+    if (success) {
+      setState(() {
+        tasks.removeAt(index);
+      });
+      print('Task deleted successfully');
+    } else {
+      print('Failed to delete task');
+      // Handle the case where the task was not deleted successfully
+    }
+  } catch (e) {
+    print('Error deleting task: $e');
+    // Handle errors
+  }
+}
+
+
+
+
+
+
   Future<void> addTask(String taskName) async {
     try {
       await TaskService.instance.createTask(taskName, DateTime.now());
-      fetchTasks(username!); // Refresh the task list after adding a new task
+      fetchTasks(username!, token!);
     } catch (e) {
       // Handle errors
     }
@@ -157,42 +179,8 @@ class _DashboardState extends State<Home> {
         backgroundColor: violet,
         actions: [
           IconButton(
-            onPressed: () async {
-              bool logoutConfirmed = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Confirm Logout"),
-                    content: Text("Do you want to logout?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop(true); // Return true to indicate logout confirmed
-                          await logout(); // Logout user
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => ChooseAction()),
-                          );
-                        },
-                        child: Text("Yes"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false); // Return false to indicate cancel
-                        },
-                        child: Text("No"),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              if (logoutConfirmed == true) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChooseAction()),
-                );
-              }
+            onPressed: () {
+              _confirmLogout(context);
             },
             icon: Icon(
               Icons.logout,
@@ -231,7 +219,7 @@ class _DashboardState extends State<Home> {
                 Container(
                   padding: const EdgeInsets.only(left: 20),
                   child: Text(
-                    'Hello! \n${username ?? 'Username'}', // Display username
+                    'Hello! \n${username ?? 'Username'}',
                     style: GoogleFonts.openSans(
                       color: white,
                       fontSize: 30,
@@ -247,83 +235,79 @@ class _DashboardState extends State<Home> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
-                  final color =
-                      Color(0xFFEFEFEF).withOpacity((index + 1) / tasks.length);
-                  return Dismissible(
-                    key: Key(task.name),
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return Dismissible(
+                  key: Key(task.id.toString()), // Use task ID as the key
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
                     ),
-                    confirmDismiss: (direction) async {
-                      return await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                                                      return AlertDialog(
-                              title: const Text("Confirm"),
-                              content: const Text("Do you want to delete the task?"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  child: const Text("Delete"),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text("Cancel"),
-                                ),
-                              ],
-                            );
-                          },
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Confirm"),
+                          content: const Text("Do you want to delete the task?"),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(true),
+                              child: const Text("Delete"),
+                            ),
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(false),
+                              child: const Text("Cancel"),
+                            ),
+                          ],
                         );
                       },
-                      onDismissed: (direction) {
-                        setState(() {
-                          tasks.removeAt(index);
-                        });
-                      },
-                      direction: DismissDirection.endToStart,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ListTile(
-                            leading: Checkbox(
-                              value: task.completed,
-                              onChanged: (value) {
-                                setState(() {
-                                  task.completed = value ?? false;
-                                });
-                              },
-                            ),
-                            title: Text(task.name),
-                            trailing: IconButton(
-                              icon: Icon(Icons.edit, color: violet),
-                              onPressed: () {
-                                _showEditTaskDialog(context, index, task.name);
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
                     );
                   },
-                ),
-              ),
+                  onDismissed: (direction) {
+                    deleteTask(index, task.id); // Correctly pass taskId
+                  },
+                  direction: DismissDirection.endToStart,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 8),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: task.completed,
+                          onChanged: (value) {
+                            setState(() {
+                              task.completed = value ?? false;
+                            });
+                          },
+                        ),
+                        title: Text(task.name),
+                        trailing: IconButton(
+                          icon: Icon(Icons.edit, color: violet),
+                          onPressed: () {
+                            _showEditTaskDialog(context, index, task.name);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
             ),
           ],
         ),
@@ -347,7 +331,7 @@ class _DashboardState extends State<Home> {
           title: Text(
             'Add Task',
             style: GoogleFonts.openSans(
-              color: darkblue, fontWeight: FontWeight.w400, fontSize: 17),
+                color: darkblue, fontWeight: FontWeight.w400, fontSize: 17),
           ),
           content: TextField(
             onChanged: (value) {
@@ -359,7 +343,7 @@ class _DashboardState extends State<Home> {
             TextButton(
               onPressed: () {
                 if (newTask.trim().isNotEmpty) {
-                  addTask(newTask); // Add task when confirmed
+                  addTask(newTask);
                   Navigator.pop(context);
                 }
               },
@@ -377,7 +361,8 @@ class _DashboardState extends State<Home> {
     );
   }
 
-  void _showEditTaskDialog(BuildContext context, int index, String currentTaskName) {
+  void _showEditTaskDialog(
+      BuildContext context, int index, String currentTaskName) {
     String editedTask = currentTaskName;
     showDialog(
       context: context,
@@ -408,5 +393,45 @@ class _DashboardState extends State<Home> {
       },
     );
   }
-}
 
+  Future<void> _confirmLogout(BuildContext context) async {
+    bool logoutConfirmed = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Logout"),
+          content: Text("Do you want to logout?"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+                await logout();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChooseAction()),
+                ).then((_) {
+                  // Fetch tasks after user logs in again
+                  checkTokenValidity();
+                });
+              },
+              child: Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (logoutConfirmed == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ChooseAction()),
+      );
+    }
+  }
+}
