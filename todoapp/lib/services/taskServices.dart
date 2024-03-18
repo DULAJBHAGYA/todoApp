@@ -8,7 +8,7 @@ class TaskService {
 
   static final TaskService _instance = TaskService.internal();
 
-  static const String baseUrl = 'http://10.10.63.120:8065';
+  static const String baseUrl = 'http://192.168.1.11:8065';
 
   TaskService.internal();
 
@@ -69,31 +69,27 @@ class TaskService {
     }
   }
 
-  Future<bool> deleteTask(int index, int taskId) 
- async {
-  try {
-    final response = await _dio.delete('$baseUrl/tasks/$taskId');
-    if (response.statusCode == 200) {
-      // Task deleted successfully.
-      return true;
-    } else if (response.statusCode == 404) {
-      // Task not found.
-      return false;
-    } else {
-      final responseData = response.data;
-      if (responseData != null && responseData['detail'] != null) {
-        throw Exception(responseData['detail'].toString());
+  Future<bool> deleteTask(int index, int taskId) async {
+    try {
+      final response = await _dio.delete('$baseUrl/tasks/$taskId');
+      if (response.statusCode == 200) {
+        // Task deleted successfully.
+        return true;
+      } else if (response.statusCode == 404) {
+        // Task not found.
+        return false;
       } else {
-        throw Exception('Failed to delete task: ${response.statusCode}');
+        final responseData = response.data;
+        if (responseData != null && responseData['detail'] != null) {
+          throw Exception(responseData['detail'].int.parse(taskId));
+        } else {
+          throw Exception('Failed to delete task: ${response.statusCode}');
+        }
       }
+    } on DioError catch (e) {
+      throw Exception(e.response?.data['detail'] ?? e.toString());
+    } catch (e) {
+      rethrow;
     }
-  } on DioError catch (e) {
-    throw Exception(e.response?.data['detail'] ?? e.toString());
-  } catch (e) {
-    rethrow;
   }
-}
-
-
-
 }

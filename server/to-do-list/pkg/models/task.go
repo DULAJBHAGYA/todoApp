@@ -46,7 +46,7 @@ func UpdateTask(username, taskID string, task Task) *Task {
 	return &existingTask
 }
 
-func DeleteTask(username string, taskID uint) bool {
+func DeleteTask(username, taskID string) bool {
 	db := config.GetDB()
 	var existingTask Task
 	db.Where("id = ?", taskID).First(&existingTask)

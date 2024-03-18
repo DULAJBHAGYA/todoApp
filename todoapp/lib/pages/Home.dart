@@ -149,12 +149,16 @@ class _DashboardState extends State<Home> {
       print('Task deleted successfully');
     } else {
       print('Failed to delete task');
+      // Handle the case where the task was not deleted successfully
     }
   } catch (e) {
     print('Error deleting task: $e');
     // Handle errors
   }
 }
+
+
+
 
 
 
@@ -231,79 +235,79 @@ class _DashboardState extends State<Home> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
-                  return Dismissible(
-                    key: Key(task.id.toString()), // Use task ID as the key
-                    background: Container(
-                      color: Colors.red,
-                      alignment: Alignment.centerRight,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return Dismissible(
+                  key: Key(task.id.toString()), // Use task ID as the key
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
                     ),
-                    confirmDismiss: (direction) async {
-                      return await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Confirm"),
-                            content:
-                                const Text("Do you want to delete the task?"),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(true),
-                                child: const Text("Delete"),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                                child: const Text("Cancel"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    onDismissed: (direction) {
-                      deleteTask(index, task.id as int); // Correctly pass taskId as an integer
-                    },
-                    direction: DismissDirection.endToStart,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 8),
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: white,
-                          borderRadius: BorderRadius.circular(10),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Confirm"),
+                          content: const Text("Do you want to delete the task?"),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(true),
+                              child: const Text("Delete"),
+                            ),
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(false),
+                              child: const Text("Cancel"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  onDismissed: (direction) {
+                    deleteTask(index, task.id); // Correctly pass taskId
+                  },
+                  direction: DismissDirection.endToStart,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 8),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: task.completed,
+                          onChanged: (value) {
+                            setState(() {
+                              task.completed = value ?? false;
+                            });
+                          },
                         ),
-                        child: ListTile(
-                          leading: Checkbox(
-                            value: task.completed,
-                            onChanged: (value) {
-                              setState(() {
-                                task.completed = value ?? false;
-                              });
-                            },
-                          ),
-                          title: Text(task.name),
-                          trailing: IconButton(
-                            icon: Icon(Icons.edit, color: violet),
-                            onPressed: () {
-                              _showEditTaskDialog(context, index, task.name);
-                            },
-                          ),
+                        title: Text(task.name),
+                        trailing: IconButton(
+                          icon: Icon(Icons.edit, color: violet),
+                          onPressed: () {
+                            _showEditTaskDialog(context, index, task.name);
+                          },
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
+            ),
+
             ),
           ],
         ),

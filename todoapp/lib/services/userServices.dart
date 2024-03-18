@@ -6,7 +6,7 @@ class NetworkService {
 
   static final NetworkService _instance = NetworkService._internal();
 
-  static const String baseUrl = 'http://10.10.63.120:8065';
+  static const String baseUrl = 'http://192.168.1.11:8065';
 
   NetworkService._internal() {
     _dio = Dio(
@@ -20,7 +20,8 @@ class NetworkService {
 
   static NetworkService get instance => _instance;
 
-  Future<dynamic> registerUser(String name, String userName, String email, String password, String confirmedPassword) async {
+  Future<dynamic> registerUser(String name, String userName, String email,
+      String password, String confirmedPassword) async {
     try {
       final response = await _dio.post(
         '/users',
