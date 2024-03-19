@@ -85,31 +85,30 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 
 // deletes a task for a user
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
+    // Extract task ID from request parameters
+    vars := mux.Vars(r)
+    taskID := vars["taskID"]
 
-	tokenHeader := r.Header.Get("Authorization")
-	if tokenHeader == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	tokenString := strings.Replace(tokenHeader, "Bearer ", "", 1)
+    // Extract the username from the token
+    username, err := utils.GetUsernameFromToken(r)
+    if err != nil {
+        // Handle error
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
 
-	username, err := verifyToken(tokenString)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintf(w, "Invalid token: %v", err)
-		return
-	}
+    // Call the delete task function with the task ID
+    success := models.DeleteTask(username, taskID)
 
-	vars := mux.Vars(r)
-	taskID := vars["taskID"]
-
-	if !models.DeleteTask(username, taskID) {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
+    if success {
+        w.WriteHeader(http.StatusOK)
+        return
+    } else {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
 }
+
 
 // updates a task for a user
 func UpdateTask(w http.ResponseWriter, r *http.Request) {

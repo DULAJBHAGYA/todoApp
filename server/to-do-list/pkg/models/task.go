@@ -47,12 +47,15 @@ func UpdateTask(username, taskID string, task Task) *Task {
 }
 
 func DeleteTask(username, taskID string) bool {
-	db := config.GetDB()
-	var existingTask Task
-	db.Where("id = ?", taskID).First(&existingTask)
-	if existingTask.ID == 0 {
-		return false
-	}
-	db.Delete(&existingTask)
-	return true
+    // Convert taskID to integer or handle appropriately based on your implementation
+    // Use taskID to delete the task from the database
+    // Example:
+    db := config.GetDB()
+    var existingTask Task
+    db.Where("id = ? AND user_name = ?", taskID, username).First(&existingTask)
+    if existingTask.ID == 0 {
+        return false
+    }
+    db.Delete(&existingTask)
+    return true
 }
