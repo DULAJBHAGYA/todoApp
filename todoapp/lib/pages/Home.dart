@@ -4,15 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoapp/color.dart';
 import 'package:todoapp/pages/ChooseAction.dart';
+import 'package:todoapp/pages/login.dart';
 import '../services/task.dart';
 import '../services/taskServices.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  final String username;
+  final String token;
+
+  const Home({Key? key, required this.username, required this.token}) : super(key: key);
 
   @override
   _DashboardState createState() => _DashboardState();
 }
+
 
 class _DashboardState extends State<Home> {
   List<Task> tasks = [];
@@ -23,6 +28,7 @@ class _DashboardState extends State<Home> {
   void initState() {
     super.initState();
     checkTokenValidity();
+    fetchTasks(widget.username, widget.token);
   }
 
   Future<void> checkTokenValidity() async {
@@ -139,28 +145,23 @@ class _DashboardState extends State<Home> {
   }
 
   Future<void> deleteTask(int index, int taskId) async {
-  try {
-    print('Deleting task with ID: $taskId');
-    final success = await TaskService.instance.deleteTask(index, taskId);
-    if (success) {
-      setState(() {
-        tasks.removeAt(index);
-      });
-      print('Task deleted successfully');
-    } else {
-      print('Failed to delete task');
-      // Handle the case where the task was not deleted successfully
+    try {
+      print('Deleting task with ID: $taskId');
+      final success = await TaskService.instance.deleteTask(index, taskId);
+      if (success) {
+        setState(() {
+          tasks.removeAt(index);
+        });
+        print('Task deleted successfully');
+      } else {
+        print('Failed to delete task');
+        // Handle the case where the task was not deleted successfully
+      }
+    } catch (e) {
+      print('Error deleting task: $e');
+      // Handle errors
     }
-  } catch (e) {
-    print('Error deleting task: $e');
-    // Handle errors
   }
-}
-
-
-
-
-
 
   Future<void> addTask(String taskName) async {
     try {
@@ -235,79 +236,83 @@ class _DashboardState extends State<Home> {
             ),
             Expanded(
               child: ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return Dismissible(
-                  key: Key(task.id.toString()), // Use task ID as the key
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                    ),
-                  ),
-                  confirmDismiss: (direction) async {
-                    return await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Confirm"),
-                          content: const Text("Do you want to delete the task?"),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(context).pop(true),
-                              child: const Text("Delete"),
-                            ),
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(context).pop(false),
-                              child: const Text("Cancel"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  onDismissed: (direction) {
-                    deleteTask(index, task.id); // Correctly pass taskId
-                  },
-                  direction: DismissDirection.endToStart,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 8),
-                    child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        leading: Checkbox(
-                          value: task.completed,
-                          onChanged: (value) {
-                            setState(() {
-                              task.completed = value ?? false;
-                            });
-                          },
-                        ),
-                        title: Text(task.name),
-                        trailing: IconButton(
-                          icon: Icon(Icons.edit, color: violet),
-                          onPressed: () {
-                            _showEditTaskDialog(context, index, task.name);
-                          },
-                        ),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return Dismissible(
+                    key: Key(task.id.toString()), // Use task ID as the key
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-
+                    confirmDismiss: (direction) async {
+                      return await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Confirm"),
+                            content:
+                                const Text("Do you want to delete the task?"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text("Delete"),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text("Cancel"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    onDismissed: (direction) {
+                      deleteTask(index, task.id); // Correctly pass taskId
+                    },
+                    direction: DismissDirection.endToStart,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 8),
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: task.completed,
+                            onChanged: (value) {
+                              setState(() {
+                                task.completed = value ?? false;
+                              });
+                            },
+                          ),
+                          title: Row(
+                            children: [
+                              Text(task.name),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.edit, color: violet),
+                            onPressed: () {
+                              _showEditTaskDialog(context, index, task.name);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -408,7 +413,7 @@ class _DashboardState extends State<Home> {
                 await logout();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => ChooseAction()),
+                  MaterialPageRoute(builder: (context) => Login()),
                 ).then((_) {
                   // Fetch tasks after user logs in again
                   checkTokenValidity();

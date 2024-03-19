@@ -1,5 +1,4 @@
-import 'dart:convert'; // Import the dart:convert library for JsonEncoder
-
+import 'dart:convert';
 import 'package:dio/dio.dart';
 
 class TaskService {
@@ -7,8 +6,7 @@ class TaskService {
   final JsonEncoder _encoder = JsonEncoder();
 
   static final TaskService _instance = TaskService.internal();
-
-  static const String baseUrl = 'http://192.168.1.11:8065';
+  static const String baseUrl = 'http://192.168.1.12:8065';
 
   TaskService.internal();
 
@@ -81,7 +79,7 @@ class TaskService {
       } else {
         final responseData = response.data;
         if (responseData != null && responseData['detail'] != null) {
-          throw Exception(responseData['detail'].int.parse(taskId));
+          throw Exception(responseData['detail'].toString());
         } else {
           throw Exception('Failed to delete task: ${response.statusCode}');
         }

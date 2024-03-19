@@ -76,7 +76,7 @@ class _RegisterState extends State<Register> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Registration Failed'),
+              title:  Text('Registration Failed'),
               content: Text(
                 'An error occurred during registration. Please try again later.',
               ),
