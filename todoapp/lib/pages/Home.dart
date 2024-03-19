@@ -12,7 +12,12 @@ class Home extends StatefulWidget {
   final String username;
   final String token;
 
+<<<<<<< Updated upstream
   const Home({Key? key, required this.username, required this.token}) : super(key: key);
+=======
+  const Home({Key? key, required this.username, required this.token})
+      : super(key: key);
+>>>>>>> Stashed changes
 
   @override
   _DashboardState createState() => _DashboardState();
@@ -23,6 +28,7 @@ class _DashboardState extends State<Home> {
   List<Task> tasks = [];
   String? username;
   String? token;
+  int? id;
 
   @override
   void initState() {
@@ -136,10 +142,10 @@ class _DashboardState extends State<Home> {
     try {
       final tasksData = await TaskService.instance.getTasks(username, token);
       setState(() {
-        tasks =
-            tasksData.map<Task>((taskJson) => Task.fromJson(taskJson)).toList();
+        tasks = tasksData;
       });
     } catch (e) {
+      print('Error fetching tasks: $e');
       // Handle errors
     }
   }
@@ -239,8 +245,14 @@ class _DashboardState extends State<Home> {
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
+<<<<<<< Updated upstream
                   return Dismissible(
                     key: Key(task.id.toString()), // Use task ID as the key
+=======
+                  final taskId = task.ID;
+                  return Dismissible(
+                    key: Key(taskId.toString()),
+>>>>>>> Stashed changes
                     background: Container(
                       color: Colors.red,
                       alignment: Alignment.centerRight,
@@ -275,7 +287,11 @@ class _DashboardState extends State<Home> {
                       );
                     },
                     onDismissed: (direction) {
+<<<<<<< Updated upstream
                       deleteTask(index, task.id); // Correctly pass taskId
+=======
+                      deleteTask(index, taskId);
+>>>>>>> Stashed changes
                     },
                     direction: DismissDirection.endToStart,
                     child: Padding(
@@ -284,7 +300,11 @@ class _DashboardState extends State<Home> {
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
+<<<<<<< Updated upstream
                           color: white,
+=======
+                          color: Colors.white,
+>>>>>>> Stashed changes
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: ListTile(
@@ -296,6 +316,7 @@ class _DashboardState extends State<Home> {
                               });
                             },
                           ),
+<<<<<<< Updated upstream
                           title: Row(
                             children: [
                               Text(task.name),
@@ -305,6 +326,14 @@ class _DashboardState extends State<Home> {
                             icon: Icon(Icons.edit, color: violet),
                             onPressed: () {
                               _showEditTaskDialog(context, index, task.name);
+=======
+                          title: Text('${task.name}'),
+                          trailing: IconButton(
+                            icon: Icon(Icons.edit, color: violet),
+                            onPressed: () {
+                              _showEditTaskDialog(
+                                  context, index, task.name, taskId);
+>>>>>>> Stashed changes
                             },
                           ),
                         ),
@@ -367,7 +396,7 @@ class _DashboardState extends State<Home> {
   }
 
   void _showEditTaskDialog(
-      BuildContext context, int index, String currentTaskName) {
+      BuildContext context, int index, String currentTaskName, int taskId) {
     String editedTask = currentTaskName;
     showDialog(
       context: context,
@@ -383,11 +412,29 @@ class _DashboardState extends State<Home> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (editedTask.trim().isNotEmpty) {
+                  // Update task locally
                   setState(() {
                     tasks[index].name = editedTask;
                   });
+
+                  try {
+                    // Update task in the database
+                    await TaskService.instance.updateTask(
+                      taskId,
+                      editedTask,
+                      DateTime.now(),
+                    );
+
+                    // Task updated successfully
+                    print('Task updated successfully');
+                    print(editedTask);
+                  } catch (e) {
+                    // Handle error updating task
+                    print('Error updating task: $e');
+                  }
+
                   Navigator.pop(context);
                 }
               },
