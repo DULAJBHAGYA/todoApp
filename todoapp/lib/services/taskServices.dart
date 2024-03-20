@@ -7,11 +7,7 @@ class TaskService {
   final JsonEncoder _encoder = JsonEncoder();
 
   static final TaskService _instance = TaskService.internal();
-<<<<<<< Updated upstream
-  static const String baseUrl = 'http://192.168.1.12:8065';
-=======
   static const String baseUrl = 'http://10.10.63.120:8065';
->>>>>>> Stashed changes
 
   TaskService.internal();
 

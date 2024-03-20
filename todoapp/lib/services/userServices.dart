@@ -6,11 +6,8 @@ class NetworkService {
 
   static final NetworkService _instance = NetworkService._internal();
 
-<<<<<<< Updated upstream
-  static const String baseUrl = 'http://192.168.1.12:8065';
-=======
   static const String baseUrl = 'http://10.10.63.120:8065';
->>>>>>> Stashed changes
+  
 
   NetworkService._internal() {
     _dio = Dio(
