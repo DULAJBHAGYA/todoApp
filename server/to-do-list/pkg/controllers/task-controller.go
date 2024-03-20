@@ -100,6 +100,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
     // Call the delete task function with the task ID
     success := models.DeleteTask(username, taskID)
 
+<<<<<<< Updated upstream
     if success {
         w.WriteHeader(http.StatusOK)
         return
@@ -107,6 +108,17 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusNotFound)
         return
     }
+=======
+	vars := mux.Vars(r)
+	taskID := vars["taskID"]
+
+	if !models.DeleteTask(username, taskID) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+>>>>>>> Stashed changes
 }
 
 
@@ -157,7 +169,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK, )
+	w.WriteHeader(http.StatusOK)
 }
 
 // parses the JWT token and returns its claims

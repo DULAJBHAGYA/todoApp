@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'task.dart';
 
 class TaskService {
   late final Dio _dio;
   final JsonEncoder _encoder = JsonEncoder();
 
   static final TaskService _instance = TaskService.internal();
-  static const String baseUrl = 'http://192.168.1.12:8065';
+  static const String baseUrl = 'http://10.10.63.120:8065';
 
   TaskService.internal();
 
@@ -37,13 +38,23 @@ class TaskService {
     }
   }
 
-  Future<List<dynamic>> getTasks(String username, String token) async {
+  Future<List<Task>> getTasks(String username, String token) async {
     try {
       final response = await _dio.get(
         '$baseUrl/tasks',
         queryParameters: {'username': username},
       );
-      return response.data;
+
+      final responseData = response.data;
+      if (responseData is List) {
+        // Convert each JSON object in the list to a Task object
+        final List<Task> tasks = responseData
+            .map((taskJson) => Task.fromJson(taskJson as Map<String, dynamic>))
+            .toList();
+        return tasks;
+      } else {
+        throw Exception('Unexpected response data format: $responseData');
+      }
     } on DioError catch (e) {
       throw Exception(e.response?.data['detail'] ?? e.toString());
     } catch (e) {
@@ -51,21 +62,36 @@ class TaskService {
     }
   }
 
-  Future<dynamic> updateTask(
-      int taskId, String taskName, DateTime dateTime) async {
-    try {
-      final response = await _dio.patch(
-        '$baseUrl/users/tasks/$taskId',
-        data: _encoder
-            .convert({'name': taskName, 'dateTime': dateTime.toString()}),
-      );
-      return response.data;
-    } on DioError catch (e) {
-      throw Exception(e.response?.data['detail'] ?? e.toString());
-    } catch (e) {
-      rethrow;
+ Future<void> updateTask(int taskId, String taskName, DateTime dateTime) async {
+  try {
+    final response = await _dio.patch(
+      '$baseUrl/users/tasks/$taskId',
+      data: {
+        'name': taskName,
+        'dateTime': dateTime.toIso8601String(), // Encode DateTime to ISO 8601 format
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Task updated successfully
+      return;
+    } else {
+      // Handle other HTTP status codes
+      throw Exception('Failed to update task: ${response.statusCode}');
     }
+  } on DioError catch (e) {
+    if (e.response != null) {
+      // Handle DioError with response
+      throw Exception(e.response!.data['detail'] ?? 'Failed to update task');
+    } else {
+      // Handle DioError without response
+      throw Exception('Failed to update task: ${e.message}');
+    }
+  } catch (e) {
+    // Handle other exceptions
+    rethrow;
   }
+}
 
   Future<bool> deleteTask(int index, int taskId) async {
     try {

@@ -219,29 +219,36 @@ class _LoginState extends State<Login> {
       final userName = _usernameController.text.trim();
       final password = _passwordController.text;
 
-      // Call the loginUser method from the NetworkService class
-      final userData = await NetworkService.instance.loginUser(userName, password);
+
+        // Call the loginUser method from the NetworkService class
+        final userData =
+            await NetworkService.instance.loginUser(userName, password);
+        print(userData);
 
       // Save the token to SharedPreferences
       await saveToken(userData['token']);
 
-      // Navigate to the Home screen if login is successful and pass username and token
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home(username: userName, token: userData['token'])),
-      );
-    } catch (e) {
-      // Show error message to the user
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              'Login failed',
-              style: GoogleFonts.openSans(
-                color: darkblue,
+
+        // Navigate to the Home screen if login is successful and pass username and token
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  Home(username: userName, token: userData['token'])),
+        );
+      } catch (e) {
+        // Show error message to the user
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                'Login failed',
+                style: GoogleFonts.openSans(
+                  color: darkblue,
+                ),
               ),
-            ),
+            
             content: Text(
               'Invalid user name or password. ',
               style: GoogleFonts.openSans(

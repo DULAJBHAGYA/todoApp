@@ -35,7 +35,7 @@ func main() {
 	)(r)
 
 	// Start the server
-	ip := "192.168.1.11"
+	ip := "10.10.63.120"
 	port := "8065"
 	addr := ip + ":" + port
 	fmt.Printf("Server is listening on %s...\n", addr)
