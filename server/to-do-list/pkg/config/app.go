@@ -8,7 +8,7 @@ import (
 var db *gorm.DB
 
 func Connect() {
-	d, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=to-do-list-v4 password=Dulaj1998 sslmode=disable")
+	d, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=to-do-list-v5 password=Dulaj1998 sslmode=disable")
 	if err != nil {
 		panic(err)
 	}

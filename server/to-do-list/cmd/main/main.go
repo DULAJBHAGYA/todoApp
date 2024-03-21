@@ -25,20 +25,23 @@ func main() {
 	// Handle API routes
 	http.Handle("/", r)
 
-	a := handlers.CORS(
+	// CORS middleware configuration
+	cors := handlers.CORS(
 		handlers.AllowedOrigins([]string{"http://example.com", "https://example.com", "*"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
 		handlers.ExposedHeaders([]string{"Content-Length"}),
 		handlers.AllowCredentials(),
 		handlers.MaxAge(3600),
-	)(r)
+	)
+
+	// Wrap the router with CORS middleware
+	a := cors(r)
 
 	// Start the server
-	ip := "10.10.63.120"
+	ip := "192.168.1.11"
 	port := "8065"
 	addr := ip + ":" + port
 	fmt.Printf("Server is listening on %s...\n", addr)
 	log.Fatal(http.ListenAndServe(addr, a))
-
 }
