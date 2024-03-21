@@ -7,7 +7,7 @@ class TaskService {
   final JsonEncoder _encoder = JsonEncoder();
 
   static final TaskService _instance = TaskService.internal();
-  static const String baseUrl = 'http://10.10.63.120:8065';
+  static const String baseUrl = 'http://192.168.1.11:8065';
 
   TaskService.internal();
 
@@ -64,7 +64,7 @@ class TaskService {
 
  Future<void> updateTask(int taskId, String taskName, DateTime dateTime) async {
   try {
-    final response = await _dio.patch(
+    final response = await _dio.put(
       '$baseUrl/users/tasks/$taskId',
       data: {
         'name': taskName,
